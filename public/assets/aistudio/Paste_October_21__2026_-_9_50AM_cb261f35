@@ -1,0 +1,1509 @@
+# PROJECT: TUITION CENTER MANAGEMENT SYSTEM
+
+Act as a senior full-stack software engineer, UI/UX designer, Firebase architect, database designer, accessibility specialist, and application security engineer.
+
+Build a complete, production-oriented, mobile-first Tuition Center Management System.
+
+Do not create only a landing page, dashboard mockup, or static prototype. Build the complete application foundation with all major pages, navigation, reusable components, forms, validation, role-aware interfaces, data models, service layers, error handling, loading states, security rules, and automated tests.
+
+The system should be designed for a tuition center that typically manages approximately 100 active students. Students may remain enrolled for several months or several years. The application must preserve historical attendance and other required records for as long as they are retained under the center's policy. Do not implement automatic deletion of attendance after 60 days.
+
+The application must be easy for a non-technical tuition administrator to operate, especially from a mobile phone.
+
+Do not omit important features simply because the project is large. Implement the foundation in organized phases, preserve working functionality between phases, and clearly identify anything that requires manual configuration or an external service.
+
+==================================================
+
+1. TECHNOLOGY STACK
+   ==================================================
+
+Use the following stack:
+
+* React
+* TypeScript with strict type checking
+* Vite where supported by the selected Google AI Studio project template
+* Tailwind CSS
+* Reusable, accessible UI components
+* React Router for application routing
+* Firebase Authentication for authentication
+* Cloud Firestore for application data
+* Firebase Security Rules for authorization and data validation
+* Firebase Storage only if needed for authorized file storage and compatible with the selected billing plan
+* Firebase Hosting as the intended deployment target if the generated project is compatible
+* A lightweight charting library only where charts genuinely improve the interface
+* A date-handling library only if necessary
+
+Use the current stable, compatible versions available in the generated environment.
+
+Use modular Firebase SDK imports.
+
+Do not introduce unnecessary libraries or complicated architecture.
+
+Separate presentation, application logic, Firebase access, data types, validation, and route protection.
+
+Suggested structure:
+
+src/
+app/
+App.tsx
+router.tsx
+providers.tsx
+components/
+layout/
+navigation/
+dashboard/
+forms/
+tables/
+dialogs/
+feedback/
+logo/
+features/
+auth/
+students/
+parents/
+batches/
+attendance/
+fees/
+payments/
+announcements/
+notifications/
+reports/
+settings/
+student-exit/
+hooks/
+lib/
+firebase.ts
+firebase-config.ts
+services/
+schemas/
+types/
+utils/
+styles/
+
+public/
+assets/
+
+firestore.rules
+storage.rules
+firebase.json
+firestore.indexes.json
+README.md
+
+Also create appropriate configuration and testing files required by the generated environment.
+
+Adjust this structure when necessary, but keep the code maintainable and clearly organized.
+
+==================================================
+2. APPLICATION MODES
+====================
+
+Initially, I may not have connected Firebase.
+
+Therefore, implement a clearly separated development/demo mode and Firebase mode.
+
+DEVELOPMENT/DEMO MODE:
+
+* The application must start without Firebase credentials.
+* Use realistic sample data.
+* Make all screens navigable.
+* Implement working interactions where practical.
+* Clearly label demo data and demo mode.
+* Never claim demo data is stored in Firebase.
+* Never treat a simulated login as real authentication.
+* Never claim that demo-mode security represents production security.
+* Do not store real passwords or sensitive personal information in localStorage.
+* If local persistence is used for non-sensitive demo data, isolate it from the production data layer.
+
+FIREBASE MODE:
+
+* Use Firebase Authentication and Firestore through a dedicated service layer.
+* Never silently fall back to demo mode when Firebase fails.
+* Display a clear connection or configuration error if Firebase mode is selected but configuration is missing.
+* Never silently discard failed writes.
+* Display loading, success, permission-denied, network-error, and retry states appropriately.
+* Do not create fake Firebase records or pretend that an operation succeeded.
+
+Provide one documented configuration switch to choose demo mode or Firebase mode.
+
+The application should be structured so that the demo data service can later be replaced by Firebase services without rewriting the entire UI.
+
+==================================================
+3. VISUAL DESIGN SYSTEM
+=======================
+
+Create a polished, modern, premium-looking interface.
+
+COLOR PALETTE:
+
+* Primary orange: #F97316
+* Dark orange: #EA580C
+* Primary blue: #2563EB
+* Dark blue: #1D4ED8
+* Light blue: #EFF6FF
+* White: #FFFFFF
+* Main background: #F8FAFC
+* Primary text: #0F172A
+* Secondary text: #64748B
+* Borders: #E2E8F0
+* Success, warning, and error colors must remain distinguishable and accessible.
+
+Use orange for primary calls to action and important highlights.
+
+Use blue for navigation, secondary actions, informational elements, and selected interface elements.
+
+Use white and subtle neutral backgrounds to maintain readability.
+
+Avoid excessive gradients, excessive shadows, too many colors, and crowded layouts.
+
+LIQUID-GLASS NAVIGATION:
+
+* Create a modern translucent liquid-glass navigation header.
+* Use a subtle translucent white background, backdrop blur, a thin border, and a soft shadow.
+* Ensure text and icons remain readable against the background.
+* Use graceful transparency rather than an exaggerated glass effect.
+* Provide a solid or less-transparent fallback when backdrop-filter is unsupported.
+* Respect reduced-motion preferences.
+* Do not allow the glass effect to reduce accessibility or readability.
+
+RESPONSIVE DESIGN:
+
+* Design for mobile screens first.
+* Support small Android phones, larger phones, tablets, laptops, and desktops.
+* Prevent horizontal overflow.
+* Use touch targets approximately 44 x 44 CSS pixels or larger.
+* Use responsive forms, tables, cards, dialogs, and navigation.
+* On mobile, convert wide data tables into cards or appropriately scrollable views.
+* Use bottom navigation or a compact mobile navigation pattern where appropriate.
+* Use a sidebar or expanded navigation on desktop.
+* Preserve consistent navigation and page titles.
+* Ensure dialogs fit on small screens and can be dismissed accessibly.
+
+LOGO:
+
+* Allow an authorized admin to upload the tuition center logo.
+* Use the uploaded logo in the application header, login screen, branded reports, and loading screen.
+* Preserve the image's aspect ratio.
+* Avoid stretching, cropping, or distorting the logo.
+* If no logo is available, display a clean placeholder.
+* Include a logo preview, validation, and a way to replace it.
+* Validate file type and size before accepting an upload.
+* Do not make uploaded files publicly accessible by default.
+
+LOADING ANIMATION:
+
+* Create an attractive animated loading experience using the tuition center logo.
+* Use a subtle logo pulse, gentle scale animation, or rotating progress indicator.
+* Use it for initial loading and significant page transitions where appropriate.
+* Do not show an unnecessarily long animation after data has loaded.
+* Support prefers-reduced-motion.
+* If the logo has not been uploaded, use a simple branded placeholder.
+
+DESIGN QUALITY:
+
+* Use consistent typography, spacing, radii, icons, form styles, and button variants.
+* Use a consistent icon library rather than emoji as interface icons.
+* Provide empty states, loading skeletons, error messages, and success feedback.
+* Use confirmation dialogs for destructive actions.
+* Make forms easy to use on mobile.
+* Add subtle animations without making the app feel slow.
+* Ensure accessible labels, keyboard navigation, visible focus indicators, and adequate contrast.
+
+==================================================
+4. USER ROLES AND ACCESS CONTROL
+================================
+
+There must be exactly two application roles:
+
+1. ADMIN
+2. PARENT
+
+The admin is also the tuition teacher. Do not create a separate teacher role.
+
+ADMIN PERMISSIONS:
+
+* Manage students.
+* Manage parent-child relationships.
+* Manage batches and class schedules.
+* Create class sessions.
+* Record and update attendance through permitted workflows.
+* Create fee records.
+* Record cash and UPI payments.
+* Generate and print receipts.
+* Publish announcements.
+* Review reports and dashboards.
+* Manage the tuition center's profile and logo.
+* Initiate the student exit and deletion workflow.
+* Review audit logs.
+* Manage authorized parent accounts.
+
+PARENT PERMISSIONS:
+
+* Sign in securely.
+* View only children linked to their authenticated account.
+* View their children's profile information.
+* View attendance history for their children.
+* View fee dues and payment history for their children.
+* View receipts and available reports for their children.
+* View announcements they are authorized to see.
+* Update permitted profile information.
+* Mark their own notifications as read.
+
+Parents must never be able to:
+
+* Assign themselves the admin role.
+* Create or edit student records.
+* Link themselves to arbitrary students.
+* Read another parent's children's information.
+* Create or edit attendance.
+* Create, modify, or delete fees.
+* Record, modify, or delete payments.
+* Modify receipt amounts.
+* Publish announcements.
+* Access admin-only reports or audit logs.
+* Initiate student deletion.
+* Modify role assignments.
+
+Enforce authorization in Firebase Security Rules and trusted server-side code where necessary. Hiding a button or route is not a security boundary.
+
+AUTHENTICATION:
+
+* Use Firebase Authentication for real authentication.
+* Build login, logout, password reset, session persistence, and authentication-loading states.
+* Provide a suitable parent onboarding process.
+* Do not let an ordinary user choose the admin role during signup.
+* Do not allow public admin registration.
+* Do not automatically promote the first registered user to admin.
+* Document a secure, manual process for creating the initial administrator.
+* Protect all private application routes.
+* Redirect unauthenticated users to login.
+* Redirect users who lack permission to an appropriate unauthorized page.
+* Do not expose credentials, service-account keys, or privileged secrets in frontend code.
+
+Use a protected users/{uid} profile containing the role and account status. Explain how the first admin is provisioned securely.
+
+==================================================
+5. REQUIRED APPLICATION NAVIGATION
+==================================
+
+Create a complete navigation system with working routes.
+
+PUBLIC ROUTES:
+
+* /login
+* /forgot-password
+* /unauthorized
+
+ADMIN ROUTES:
+
+* /admin/dashboard
+* /admin/students
+* /admin/students/new
+* /admin/students/:studentId
+* /admin/parents
+* /admin/batches
+* /admin/sessions
+* /admin/attendance
+* /admin/fees
+* /admin/payments
+* /admin/receipts
+* /admin/announcements
+* /admin/notifications
+* /admin/reports
+* /admin/student-exit
+* /admin/audit-logs
+* /admin/settings
+
+PARENT ROUTES:
+
+* /parent/dashboard
+* /parent/children
+* /parent/children/:studentId
+* /parent/attendance
+* /parent/fees
+* /parent/payments
+* /parent/receipts
+* /parent/announcements
+* /parent/notifications
+* /parent/profile
+
+Use route guards and role-aware navigation.
+
+An unauthorized user must not be able to access protected data by entering a URL manually.
+
+All navigation items must lead to real pages. Do not create placeholder links that do nothing.
+
+If a feature cannot be fully implemented yet, show an honest, clearly labeled not-yet-configured state instead of pretending it works.
+
+==================================================
+6. ADMIN DASHBOARD
+==================
+
+Create a useful overview of the tuition center.
+
+Include:
+
+* Total active students.
+* Students grouped by batch.
+* Today's class sessions.
+* Attendance marked and unmarked.
+* Present, absent, and left counts.
+* Monthly fees expected.
+* Total confirmed payments received.
+* Outstanding fee balance.
+* Recent payments.
+* Upcoming or current sessions.
+* Recent announcements.
+* Recent administrative activities where authorized.
+* Quick actions for adding a student, marking attendance, recording payment, and creating a fee record.
+
+Do not calculate financial or attendance figures using unrelated sample data when Firebase mode is active.
+
+Dashboard metrics must be derived from actual authorized records.
+
+Explain any limitations of aggregation queries or historical totals.
+
+Avoid excessive Firestore reads. Fetch only the data needed for each screen and use pagination where appropriate.
+
+==================================================
+7. STUDENT MANAGEMENT
+=====================
+
+The student directory must support:
+
+* Search by student name.
+* Filtering by active/inactive status.
+* Filtering by grade and batch.
+* Pagination.
+* Adding a student.
+* Viewing a student's details.
+* Editing permitted student information.
+* Assigning a batch.
+* Viewing linked parents.
+* Viewing attendance history.
+* Viewing fee and payment summaries.
+* Viewing enrollment information.
+* Initiating the student exit process.
+
+Student fields should include:
+
+* studentId
+* fullName
+* grade
+* schoolName, if applicable
+* batchId
+* enrollmentDate
+* monthlyFeePaise
+* active
+* createdAt
+* updatedAt
+
+Use a generated document ID for studentId unless a secure, well-defined ID strategy is required.
+
+Store monetary amounts as integers in paise. For example, ₹1,500 must be stored as 150000 paise.
+
+Display formatted Indian currency such as ₹1,500.00.
+
+Do not collect unnecessary personal data.
+
+Validate required fields and display useful errors.
+
+Do not permanently delete a student using a simple delete button. All permanent deletions must go through the student exit workflow.
+
+==================================================
+8. PARENT AND STUDENT LINK MANAGEMENT
+=====================================
+
+A parent may have multiple children.
+
+A student may have multiple authorized parents or guardians.
+
+Create a parent-child relationship collection:
+
+parentStudentLinks/{parentUid}_{studentId}
+
+Each relationship should contain:
+
+* parentUid
+* studentId
+* relationship
+* authorized
+* createdAt
+* createdBy
+
+Use deterministic document IDs so security rules can verify a specific parent-child relationship.
+
+Only the admin can create, authorize, change, or remove parent-child relationships.
+
+A parent must never be able to create their own relationship to a student.
+
+Verify that the referenced parent account and student exist before creating a relationship.
+
+Parents may query only their own relationships.
+
+When retrieving student data, validate the relationship on the server/database authorization boundary.
+
+Remember that Firestore Security Rules are not filters: queries must be designed to retrieve only records that the authenticated user is permitted to access.
+
+==================================================
+9. BATCHES AND CLASS SESSIONS
+=============================
+
+BATCH MANAGEMENT:
+
+* Create a batch.
+* Edit a batch.
+* Activate or deactivate a batch.
+* Assign students to a batch.
+* View students in a batch.
+* Configure class start and end times.
+* Configure teaching days.
+* Configure the default late-arrival grace period.
+
+Batch fields:
+
+* name
+* grade
+* subject
+* startTime
+* endTime
+* daysOfWeek
+* active
+* createdAt
+* updatedAt
+
+CLASS SESSIONS:
+
+* Create sessions for a particular date.
+* View upcoming and historical sessions.
+* Record scheduled start and end times.
+* Record the batch associated with each session.
+* Store the grace-period setting as a session snapshot.
+* Prevent duplicate session creation for the same batch and scheduled date/time unless explicitly permitted.
+
+Class-session fields:
+
+* batchId
+* sessionDate
+* scheduledStartAt
+* scheduledEndAt
+* gracePeriodMinutes
+* status
+* createdAt
+* updatedAt
+
+Do not silently rewrite historical session schedules when a batch's schedule changes.
+
+Validate the session's batch, timestamps, and schedule.
+
+Use a consistent timezone strategy and document it. Display dates and times consistently for the tuition center's configured timezone.
+
+==================================================
+10. ATTENDANCE MANAGEMENT
+=========================
+
+Attendance must be recorded per student per class session.
+
+Supported states:
+
+* NOT_MARKED
+* PRESENT
+* ABSENT
+* LEFT
+
+NOT_MARKED is a display state when no attendance document exists. It does not need to be stored as a document.
+
+Use deterministic attendance document IDs:
+
+attendance/{studentId}_{sessionId}
+
+Each attendance document should contain:
+
+* studentId
+* batchId
+* sessionId
+* status
+* arrivalAt
+* departureAt
+* arrivalClassification
+* createdAt
+* updatedAt
+* recordedBy
+* lastModifiedBy
+
+ATTENDANCE RULES:
+
+* Do not automatically mark students absent.
+* An unmarked student must remain NOT_MARKED until the admin records attendance.
+* PRESENT requires a valid arrival timestamp.
+* ABSENT has no arrival or departure timestamp.
+* LEFT is allowed only after the student has been marked PRESENT.
+* Transitioning from PRESENT to LEFT must preserve the original arrival timestamp.
+* LEFT must record a valid departure timestamp.
+* The departure time must not be earlier than arrival time.
+* Do not silently overwrite an existing attendance record.
+* Do not create duplicate attendance records for the same student and session.
+* Only the admin can record attendance.
+* Parents have read-only access to attendance for their linked children.
+
+ON-TIME/LATE CLASSIFICATION:
+
+* Use the class session's scheduled start time and grace-period snapshot.
+* Calculate the classification consistently.
+* Make the grace period configurable by the admin.
+* Store ON_TIME or LATE for PRESENT records.
+* Use NOT_APPLICABLE for ABSENT records.
+* Explain the exact comparison boundary used by the implementation.
+* Prevent clients from arbitrarily changing the calculated classification without a permitted correction workflow.
+
+Attendance corrections must use a controlled, audited admin workflow.
+
+Do not implement attendance deletion as the normal correction method.
+
+ATTENDANCE HISTORY:
+
+* Provide date and batch filters.
+* Provide student-specific history.
+* Show arrival and departure times.
+* Show attendance summaries and percentages.
+* Clearly distinguish unmarked sessions from absences.
+* Preserve attendance history for the configured retention period.
+* Do not implement automatic 60-day deletion.
+
+==================================================
+11. FEES, PAYMENTS, BALANCES, AND RECEIPTS
+==========================================
+
+Keep fee obligations separate from payment transactions.
+
+FEE RECORDS:
+Create fee records for individual students and billing periods.
+
+Suggested fields:
+
+* studentId
+* billingMonth
+* billingYear
+* amountDuePaise
+* dueDate
+* description
+* createdAt
+* updatedAt
+
+PAYMENTS:
+Each confirmed payment must be a separate transaction.
+
+Suggested fields:
+
+* studentId
+* feeRecordId
+* amountPaise
+* method
+* paymentDate
+* receiptNumber
+* recordedBy
+* reference
+* notes
+* status
+* createdAt
+
+Supported payment methods:
+
+* CASH
+* UPI
+
+Do not implement an online payment gateway.
+
+Support:
+
+* Full payment.
+* Partial payment.
+* Multiple payments against one fee record.
+* Payment history.
+* Payment search and filtering.
+* Receipt generation and printing.
+* Payment summaries by month.
+* Outstanding balance summaries.
+
+FINANCIAL CALCULATIONS:
+
+* Total confirmed payments = sum of valid confirmed payment transactions.
+* Fee balance = amount due minus applicable confirmed payments and approved adjustments.
+* A balance below zero must be handled explicitly as a credit/overpayment rather than silently hidden.
+* Payment status must be derived from the fee amount and applicable payments, not independently edited as an unreliable source of truth.
+* Display statuses such as UNPAID, PARTIALLY_PAID, PAID, and OVERPAID as derived values.
+
+Use integer paise for calculations to avoid floating-point currency errors.
+
+PAYMENT INTEGRITY:
+
+* Never silently overwrite a confirmed payment.
+* Never allow a parent to record or modify payments.
+* Never allow arbitrary changes to confirmed payment amounts.
+* Use a documented, auditable reversal or correction workflow.
+* A reversal must reference the original payment and record the reason and authorized actor.
+* Do not erase the history of a financial correction.
+* If financial or legal recordkeeping obligations require retaining particular records, retain the minimum required information securely instead of deleting it indiscriminately.
+
+RECEIPTS:
+
+* Generate a clear printable receipt.
+* Include the tuition center's logo where available.
+* Include the receipt number, student name, billing reference, amount, payment method, payment date, and authorized center details.
+* Provide print and PDF-export functionality where supported.
+* Do not claim a payment was successful merely because the receipt screen opened.
+* Generate receipts from persisted, confirmed payment records.
+
+Do not create a payment gateway, WhatsApp integration, SMS integration, or leave-management module.
+
+==================================================
+12. ANNOUNCEMENTS AND NOTIFICATIONS
+===================================
+
+ANNOUNCEMENTS:
+
+* Allow the admin to create, edit, publish, and deactivate announcements.
+* Support general announcements.
+* Support batch-targeted announcements.
+* Show announcement title, message, publishing time, and target audience.
+* Parents may read only announcements intended for them.
+
+Do not expose batch-targeted announcements to all parents.
+
+Design authorization carefully so that a parent cannot query private announcements for another batch.
+
+NOTIFICATIONS:
+Create an in-app notification center.
+
+Suggested fields:
+
+* recipientUid
+* title
+* message
+* type
+* relatedRecordId
+* createdAt
+* readAt
+
+Features:
+
+* Unread count.
+* Mark as read.
+* Read history.
+* Role-appropriate notifications.
+* Link to the related page where authorized.
+
+Notifications must not disclose another student's details to a parent.
+
+Implement in-app notifications first.
+
+Do not promise that push notifications, WhatsApp messages, or SMS are operational unless the necessary services have been configured.
+
+==================================================
+13. PARENT PORTAL
+=================
+
+Create a mobile-first parent portal.
+
+Dashboard:
+
+* Welcome message.
+* Linked children.
+* Today's or recent attendance summary.
+* Outstanding fee balance.
+* Recent confirmed payments.
+* Recent announcements.
+* Unread notification count.
+
+Child details:
+
+* Student name and permitted profile information.
+* Grade and batch.
+* Enrollment information.
+* Attendance history.
+* Attendance percentage.
+* Fee records.
+* Payment history.
+* Available receipts.
+
+If one parent has multiple children, allow switching between children.
+
+All student-specific queries must be authorized against the authenticated parent's relationships.
+
+Never rely only on a student ID provided by the browser.
+
+If access is denied, do not expose data in the error message.
+
+==================================================
+14. REPORTS
+===========
+
+Create an admin reports section with filters and useful summaries.
+
+Required reports:
+
+* Student directory report.
+* Active and inactive student counts.
+* Attendance by date.
+* Attendance by batch.
+* Student attendance history.
+* Attendance percentage.
+* Fee collection by month.
+* Outstanding balances.
+* Payment transaction history.
+* Student financial summary.
+* Student exit report.
+
+Where appropriate, provide print-friendly reports and CSV export.
+
+If PDF export is supported, provide it for reports that benefit from a printable document.
+
+Do not expose report-generation actions to parents unless explicitly authorized for their own linked children.
+
+For all reports, show the selected reporting period and clearly identify the underlying calculations.
+
+Avoid unnecessary database reads and implement pagination or aggregation strategies suitable for the free plan.
+
+==================================================
+15. STUDENT EXIT AND PERMANENT DELETION
+=======================================
+
+Implement a carefully controlled student exit workflow.
+
+This is a high-risk administrative feature.
+
+The admin must be able to initiate a student exit and generate a final report before deleting the student's records.
+
+The report should include, where available:
+
+* Student details necessary for the report.
+* Enrollment and exit dates.
+* Attendance sessions counted.
+* Present, absent, and LEFT counts.
+* Attendance percentage with an explicit calculation method.
+* Total fees due.
+* Total confirmed fees paid.
+* Outstanding balance or credit.
+* Relevant payment history.
+* Report-generation timestamp.
+* The authorized admin who initiated the process.
+
+Do not count NOT_MARKED sessions as absences.
+
+Define attendance percentage consistently. For example, calculate it as PRESENT sessions divided by sessions with a final PRESENT or ABSENT outcome, multiplied by 100. Treat LEFT according to the original attendance outcome so that leaving early does not remove a student from attendance statistics. Exclude NOT_MARKED sessions from the denominator.
+
+EXIT PROCESS:
+
+1. Admin selects the student.
+2. Display a review screen with the student's attendance and financial summary.
+3. Generate the final exit report.
+4. Store the report in a separately secured location.
+5. Verify that the report was actually stored and can be retrieved.
+6. Show the report to the admin for review.
+7. Require explicit confirmation before permanent deletion.
+8. Explain which records will be deleted and which, if any, must be retained for financial or legal obligations.
+9. Execute the deletion using a trusted, authorized workflow.
+10. Track deletion progress and failures.
+11. Verify that all targeted records have been processed.
+12. Show success only when completion has been verified.
+
+Do not automatically delete students after 60 days or after any other time interval.
+
+Do not use a simple client-side loop as the only protection for permanent deletion.
+
+Do not assume that deleting a Firestore document automatically deletes its subcollections or related documents.
+
+Do not assume that a multi-document deletion is atomic.
+
+Use a resumable, failure-aware deletion job that can safely continue after partial failure.
+
+Use idempotent operations and explicit progress tracking.
+
+Use a deletion manifest or equivalent mechanism to identify the records associated with the student.
+
+Consider all related collections, including:
+
+* students
+* attendance
+* feeRecords
+* payments
+* parentStudentLinks
+* related notifications
+* relevant student-specific metadata
+* related report metadata
+* other records introduced by this application's schema
+
+Before deletion, confirm that the separately stored report is available and verified.
+
+The report must not be publicly accessible through an unrestricted URL.
+
+Do not store Firebase service-account credentials in the frontend.
+
+For permanent deletion and protected report storage, use a trusted backend or other appropriate privileged environment with least-privilege access.
+
+If the selected storage or backend requires billing, do not silently enable billing. Explain the dependency and leave the feature safely disabled until it is configured.
+
+Keep a minimal audit trail of the deletion job without unnecessarily retaining the student's personal information in the audit record.
+
+A deletion job may contain:
+
+* jobId
+* status
+* requestedBy
+* requestedAt
+* reportId
+* deletionStartedAt
+* completedAt
+* failureReason
+
+Use explicit statuses such as:
+REQUESTED
+REPORT_GENERATING
+REPORT_STORED
+REPORT_VERIFIED
+AWAITING_CONFIRMATION
+DELETING
+COMPLETED
+FAILED
+
+Never claim successful deletion if some targeted records remain.
+
+Do not store sensitive report contents in the audit log.
+
+Before deleting financial records, account for applicable recordkeeping requirements. Where records must be retained, implement a documented retention exception and protect the minimum necessary data.
+
+==================================================
+16. SETTINGS AND TUITION CENTER BRANDING
+========================================
+
+Create an admin settings page with:
+
+* Tuition center name.
+* Logo upload and replacement.
+* Address and contact information, if provided.
+* Configurable timezone.
+* Default late-arrival grace period.
+* Currency display settings, defaulting to INR.
+* Receipt branding.
+* Attendance and report preferences.
+* Account and session information.
+
+Store only the configuration necessary for the application.
+
+Validate logo uploads by file type and size.
+
+Do not allow arbitrary file uploads.
+
+Do not make private uploaded files publicly accessible by default.
+
+Explain the difference between local logo preview and a logo that has actually been saved to the configured backend.
+
+==================================================
+17. DATABASE SCHEMA
+===================
+
+Use a consistent, documented Firestore schema.
+
+Required collections:
+
+1. users
+2. students
+3. parentStudentLinks
+4. batches
+5. classSessions
+6. attendance
+7. feeRecords
+8. payments
+9. announcements
+10. notificationHistory
+11. auditLogs
+12. studentExitJobs
+13. exitReports
+
+Additional collections may be introduced when justified and documented.
+
+For each collection:
+
+* Define a TypeScript interface or type.
+* Define required and optional fields.
+* Validate input.
+* Use consistent timestamp conventions.
+* Use document references or IDs consistently.
+* Define indexes for actual queries.
+* Document read/write permissions.
+* Avoid unnecessary duplicated personal information.
+* Avoid treating browser-provided fields as trusted authorization evidence.
+
+Use server timestamps where appropriate.
+
+Use deterministic IDs for parent-child relationships and student-session attendance.
+
+Use generated IDs for other records where appropriate.
+
+Never assume that client-side TypeScript types enforce database security.
+
+Use runtime validation for important form and service inputs.
+
+Document all relationships between collections.
+
+==================================================
+18. FIRESTORE SECURITY RULES
+============================
+
+Generate a complete, carefully reviewed firestore.rules file.
+
+Do not use permissive placeholder rules.
+
+Never use:
+allow read, write: if true;
+
+Never deploy open development rules as production rules.
+
+Default-deny all paths not explicitly authorized.
+
+Use Firebase Authentication and role-based authorization.
+
+Create helper functions for:
+
+* signedIn()
+* isAdmin()
+* isParent()
+* parent-child relationship verification
+* required-field validation
+* allowed-field validation
+* type validation
+* safe document updates
+
+ADMIN AUTHORIZATION:
+Read the user's role from a protected users/{uid} document or another secure role source.
+
+Require the authenticated user to be active and to have the admin role.
+
+Prevent ordinary users from assigning or changing their own role.
+
+Prevent public users from creating an admin account.
+
+PARENT AUTHORIZATION:
+Require the authenticated user to be active and have the parent role.
+
+Require an explicitly authorized parentStudentLinks relationship for access to each child.
+
+Do not authorize access merely because a client supplies a student ID.
+
+COLLECTION-SPECIFIC REQUIREMENTS:
+
+users:
+
+* Users may read their own permitted profile.
+* Admins may read permitted user records.
+* Prevent client-side role escalation.
+* Restrict parent profile updates to an explicit allowlist of safe fields.
+* Do not allow a parent to change their UID, role, or active status.
+* Prevent unauthorized profile deletion.
+
+students:
+
+* Admins may create and update student records through validated operations.
+* Parents may read only individually authorized linked students.
+* Parents cannot list every student.
+* Parents cannot create, edit, or delete student records.
+* Permanent deletion must use the controlled trusted workflow.
+
+parentStudentLinks:
+
+* Only admins may create, update, authorize, or delete relationships.
+* A parent may read only their own relationship records.
+* Verify the parent UID and student ID against the deterministic document ID.
+* Do not permit self-linking.
+* Verify referenced records where the rules and available access allow it.
+
+batches:
+
+* Permit authorized reads of necessary schedule information.
+* Restrict all writes to admins.
+* Validate required fields and field types.
+* Prevent unauthorized deletion.
+
+classSessions:
+
+* Permit authorized reads of necessary schedule information.
+* Restrict writes to admins.
+* Validate batch IDs, timestamps, status, and grace period.
+* Prevent unauthorized deletion.
+
+attendance:
+
+* Admins may read attendance records.
+* Parents may read attendance only for authorized children.
+* Only admins may create or update records through permitted transitions.
+* Enforce the deterministic student-session document ID.
+* Validate the referenced student, session, and matching batch.
+* Do not allow duplicate logical attendance records.
+* Enforce valid attendance states and timestamp requirements.
+* A PRESENT record requires an arrival timestamp.
+* An ABSENT record must not have an arrival or departure timestamp.
+* LEFT must require a previous PRESENT state and preserve the original arrival timestamp.
+* Departure must not be earlier than arrival.
+* Restrict updates to explicitly allowed fields.
+* Do not allow parents to modify attendance.
+* Do not allow direct client deletion.
+
+feeRecords:
+
+* Admins may create fee records after validating the student and amounts.
+* Parents may read only fee records belonging to their linked children.
+* Parents cannot create, modify, or delete fees.
+* Do not permit arbitrary changes to established fee obligations.
+* Define an audited correction workflow for permitted fee adjustments.
+
+payments:
+
+* Admins may create valid payment records.
+* Parents may read only payment records belonging to their linked children.
+* Parents cannot create, update, delete, reverse, or alter payments.
+* Require a positive integer amount in paise.
+* Validate supported methods: CASH and UPI.
+* Validate the associated student and fee record.
+* Require the fee record to belong to the same student.
+* Restrict the recordedBy field to the authorized actor.
+* Prevent ordinary clients from altering confirmed payments.
+* Implement corrections and reversals through a controlled, auditable workflow.
+* Do not allow direct client deletion.
+
+announcements:
+
+* Only admins may create and manage announcements.
+* Parents may read only active announcements intended for their authorized audience.
+* Ensure that batch-targeted announcements cannot be read by unauthorized parents.
+* Do not assume that hiding a batch announcement in the UI provides security.
+
+notificationHistory:
+
+* Admins may create notifications through validated operations.
+* A parent may read only their own notification records.
+* A parent may update only the permitted read-state fields on their own notifications.
+* Prevent a parent from changing the recipient UID or notification content.
+
+auditLogs:
+
+* Admins may read authorized audit logs.
+* Do not permit ordinary client-side creation, modification, or deletion of sensitive audit entries.
+* Generate security-sensitive audit records through a trusted process.
+
+studentExitJobs:
+
+* Only authorized admins may read job information.
+* Do not allow arbitrary client-side job-status changes.
+* Use a trusted workflow for report verification and deletion execution.
+
+exitReports:
+
+* Restrict report metadata access to authorized admins.
+* Do not allow parents to read another student's report.
+* Do not expose private report contents through public URLs.
+* Restrict privileged report creation and updates to a trusted workflow.
+
+DEFAULT:
+
+* Deny every other operation unless it is explicitly required and authorized.
+
+RULE QUALITY REQUIREMENTS:
+
+* Use request.auth.uid for identity.
+* Validate field types and allowed fields.
+* Protect immutable identifiers.
+* Protect createdAt and other immutable fields.
+* Prevent users from bypassing authorization through update operations.
+* Validate related-document ownership where necessary.
+* Avoid relying on the UI for authorization.
+* Do not create circular or unnecessarily expensive rule lookups.
+* Consider Firestore rule document-access call limits.
+* Ensure queries are compatible with the security rules.
+* Document any workflow that cannot be securely implemented using client-side rules alone.
+
+Do not claim the rules are secure merely because the file was generated.
+
+==================================================
+19. TRUSTED BACKEND AND PRIVILEGED OPERATIONS
+=============================================
+
+Identify which operations require trusted server-side execution.
+
+Examples:
+
+* Secure initial administrator provisioning.
+* Sensitive payment corrections and reversals.
+* Permanent student deletion.
+* Multi-collection deletion jobs.
+* Protected report storage and verification.
+* Sensitive audit-log creation.
+* Other privileged operations that cannot be safely implemented solely through client-side rules.
+
+Use a trusted backend only when necessary.
+
+Never place Firebase Admin SDK credentials in the browser.
+
+If a backend is needed, create a clearly separated, documented interface for it.
+
+Prefer least-privilege authorization and idempotent operations.
+
+Do not silently introduce paid infrastructure.
+
+If a required backend depends on Cloud Functions, Cloud Run, Cloud Storage, or another service that requires a billing-enabled project or may incur charges, clearly identify the requirement before enabling it.
+
+Do not pretend that a frontend-only implementation provides secure privileged deletion.
+
+If a trusted backend is not configured, keep the dangerous operation disabled and explain what must be configured.
+
+==================================================
+20. SECURITY RULE TESTS
+=======================
+
+Create automated tests for Firestore Security Rules using the Firebase Local Emulator Suite and @firebase/rules-unit-testing where supported.
+
+Include positive and negative tests.
+
+At minimum, test:
+
+AUTHENTICATION:
+
+* Unauthenticated users cannot read private records.
+* Unauthenticated users cannot write protected records.
+* Authenticated parents cannot promote themselves to admin.
+
+ROLE SECURITY:
+
+* Admins can perform authorized operations.
+* Parents cannot perform admin-only operations.
+* A parent cannot change their own role or active status.
+
+PARENT-CHILD ISOLATION:
+
+* Parent A can read Parent A's linked child.
+* Parent A cannot read Parent B's child.
+* Parent A cannot query all students.
+* Parent A cannot forge a relationship.
+* Parent A cannot read attendance, fees, or payments for an unlinked student.
+
+ATTENDANCE:
+
+* An admin can create a valid attendance record.
+* A parent cannot create attendance.
+* A parent cannot modify attendance.
+* An absent record with an arrival timestamp is rejected.
+* A LEFT transition without a previous PRESENT state is rejected.
+* A LEFT transition that changes the original arrival timestamp is rejected.
+* Invalid student-session relationships are rejected.
+* Unauthorized deletion is rejected.
+
+FINANCIAL RECORDS:
+
+* A parent cannot create fee records.
+* A parent cannot create or alter payments.
+* Invalid payment amounts are rejected.
+* Payments referencing another student's fee record are rejected.
+* Unauthorized payment deletion is rejected.
+* Confirmed payments cannot be silently overwritten.
+
+ANNOUNCEMENTS AND NOTIFICATIONS:
+
+* Parents cannot publish announcements.
+* Parents cannot read unauthorized batch announcements.
+* Parents cannot read another user's notifications.
+* Parents cannot change notification recipients.
+
+AUDIT AND EXIT:
+
+* Ordinary clients cannot create or modify sensitive audit records.
+* Parents cannot initiate permanent deletion.
+* Clients cannot forge completed exit jobs.
+* Parents cannot access private exit reports.
+
+Provide:
+
+* Test files.
+* Instructions to run the tests.
+* A list of tested rules.
+* A list of untested or unimplemented rules.
+* Clear failure messages where appropriate.
+
+Do not claim that tests passed unless you actually ran them and observed successful results.
+
+Never use production data for emulator tests.
+
+==================================================
+21. PERFORMANCE AND FIREBASE SPARK COST CONTROL
+===============================================
+
+The initial goal is to use Firebase Spark wherever possible and avoid unnecessary operational costs.
+
+Design for approximately 100 active students, while recognizing that students may remain enrolled for years.
+
+Requirements:
+
+* Paginate large lists.
+* Avoid fetching every student's full history on every dashboard load.
+* Fetch only the documents required for each screen.
+* Avoid redundant listeners and repeated queries.
+* Unsubscribe from listeners when components unmount.
+* Avoid unnecessary real-time listeners.
+* Use batched operations where appropriate.
+* Use transactions when an operation requires consistent reads and writes.
+* Do not assume that a batch makes an operation atomic across every related business process.
+* Avoid automatic high-frequency polling.
+* Provide clear loading and retry states.
+* Use indexes appropriate to the queries.
+* Avoid scheduled deletion jobs.
+* Do not automatically delete attendance after 60 days.
+* Do not silently enable a paid plan.
+* Do not silently enable billing-dependent services.
+
+Explain that free-tier limits are shared usage limits, not a guarantee that every feature is free.
+
+Before enabling any service that requires billing, explain:
+
+1. Why it is needed.
+2. Whether a free alternative exists.
+3. The expected operational implications.
+4. Which manual configuration is required.
+
+Use the current official Firebase pricing information when assessing service costs. Do not hard-code outdated pricing assumptions into the application.
+
+==================================================
+22. FORM VALIDATION AND ERROR HANDLING
+======================================
+
+Implement validation for all important forms.
+
+Examples:
+
+* Required student name.
+* Valid enrollment date.
+* Valid batch selection.
+* Nonnegative fee amount.
+* Positive payment amount.
+* Valid payment method.
+* Valid attendance transition.
+* Valid parent-child relationship.
+* Valid logo file type and size.
+* Valid report filters.
+
+Use clear inline validation messages.
+
+Handle:
+
+* Permission denied.
+* Authentication failures.
+* Missing Firebase configuration.
+* Network failures.
+* Duplicate records.
+* Invalid data.
+* Failed uploads.
+* Failed report generation.
+* Failed deletion jobs.
+* Unexpected server errors.
+
+Do not expose sensitive database details or internal stack traces to end users.
+
+Log useful diagnostic information in development without exposing secrets.
+
+Never silently swallow exceptions.
+
+==================================================
+23. ACCESSIBILITY AND MOBILE USABILITY
+======================================
+
+Ensure:
+
+* Responsive layouts.
+* Accessible form labels.
+* Keyboard navigation.
+* Visible focus indicators.
+* Sufficient contrast.
+* Screen-reader-friendly button labels.
+* Proper modal focus management.
+* Accessible loading indicators.
+* Reduced-motion support.
+* Touch-friendly controls.
+* Clear status labels that do not rely on color alone.
+* Proper empty and error states.
+
+Test the main workflows at mobile, tablet, and desktop viewport sizes.
+
+==================================================
+24. REQUIRED DELIVERABLES
+=========================
+
+Generate a working codebase, not just a description.
+
+Deliver:
+
+1. Complete React and TypeScript application.
+2. Responsive UI and design system.
+3. Liquid-glass navigation header.
+4. Logo upload and branded loading animation.
+5. Login and authentication UI.
+6. Role-aware navigation and protected routes.
+7. All required admin pages.
+8. All required parent pages.
+9. Student-management workflows.
+10. Parent-child linking workflows.
+11. Batch and session management.
+12. Attendance workflows.
+13. Fee and payment workflows.
+14. Receipt generation and printing.
+15. Announcements and in-app notifications.
+16. Reports.
+17. Student exit workflow foundation.
+18. TypeScript data models.
+19. Data-validation utilities.
+20. Firebase configuration and service abstraction.
+21. firestore.rules.
+22. storage.rules if Firebase Storage is used.
+23. Firestore index configuration where necessary.
+24. Firebase configuration files where supported.
+25. Automated security-rule tests.
+26. Demo data and an isolated demo mode.
+27. Error handling and loading states.
+28. README with setup and operation instructions.
+29. A manual Firebase setup checklist.
+30. A security limitations checklist.
+31. A list of unfinished features and external dependencies.
+
+The README must explain:
+
+* How to install dependencies.
+* How to run the application locally.
+* How to use demo mode.
+* How to configure Firebase mode.
+* How to create the Firebase project.
+* How to enable authentication providers.
+* How to initialize Firestore.
+* How to deploy and test security rules.
+* How to run the emulator.
+* How to run security tests.
+* How to configure the initial admin.
+* How to build and deploy the application.
+* Which features require trusted backend services.
+* Which operations are disabled until those services are configured.
+
+==================================================
+25. IMPLEMENTATION WORKFLOW
+===========================
+
+Build in the following order.
+
+PHASE 1 — FOUNDATION:
+
+* Create the application structure.
+* Create the design system.
+* Create responsive navigation.
+* Create the logo component and loading animation.
+* Create the router.
+* Create role-aware layout components.
+* Create demo mode.
+* Make all routes navigable.
+
+PHASE 2 — DATA AND AUTHENTICATION:
+
+* Define TypeScript types.
+* Define the Firestore schema.
+* Implement form validation.
+* Implement Firebase service abstractions.
+* Implement authentication integration points.
+* Implement role and relationship checks.
+* Generate the security rules.
+
+PHASE 3 — ADMIN WORKFLOWS:
+
+* Student management.
+* Parent-child relationships.
+* Batches and class sessions.
+* Attendance.
+* Fees and payments.
+* Receipts.
+* Announcements.
+* Notifications.
+* Reports.
+
+PHASE 4 — PARENT WORKFLOWS:
+
+* Parent dashboard.
+* Child switching.
+* Student information.
+* Attendance.
+* Fees and payments.
+* Receipts.
+* Announcements.
+* Notifications.
+* Profile management.
+
+PHASE 5 — EXIT AND SECURITY:
+
+* Exit-report generation.
+* Secure report-storage interface.
+* Deletion-job state machine.
+* Trusted-backend interfaces.
+* Security-rule tests.
+* Authorization checks.
+* Failure recovery.
+
+PHASE 6 — QUALITY:
+
+* Resolve TypeScript errors.
+* Resolve build errors.
+* Check imports and routes.
+* Check form validation.
+* Check mobile layouts.
+* Check accessibility.
+* Check security rules and tests.
+* Check that no buttons are fake or dead.
+* Update the README.
+* Provide a clear final status report.
+
+==================================================
+26. FINAL RULES FOR THE AI CODING AGENT
+=======================================
+
+Do not stop after generating a dashboard.
+
+Do not replace functional workflows with static cards.
+
+Do not use hard-coded data in Firebase mode.
+
+Do not claim a Firebase connection exists until it has actually been configured and tested.
+
+Do not expose API keys, service-account credentials, or privileged secrets.
+
+Do not create a public admin signup.
+
+Do not implement an unrestricted database.
+
+Do not omit security rules.
+
+Do not claim that generated security rules have been tested unless they have been tested.
+
+Do not automatically delete attendance after 60 days.
+
+Do not implement leave management.
+
+Do not implement WhatsApp, SMS, or an online payment gateway.
+
+Do not silently enable Firebase billing or paid services.
+
+Do not claim permanent deletion is complete if related records remain.
+
+Do not silently ignore errors.
+
+If the full application cannot be generated in one pass, implement the foundation first and continue with the next phase without destroying previously working code.
+
+After each phase, summarize:
+
+* Files created or changed.
+* Features implemented.
+* Features verified.
+* Tests actually run and their results.
+* Known limitations.
+* Manual configuration still required.
+* The next recommended implementation step.
+
+Begin with PHASE 1. Create the project files and working application foundation first. Then continue systematically through the remaining phases.

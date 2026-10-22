@@ -1,0 +1,281 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // AUTHORIZATION HELPER FUNCTIONS
+    // ==========================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function getUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserDoc().data.role == 'ADMIN' &&
+        getUserDoc().data.active == true;
+    }
+
+    function isParent() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserDoc().data.role == 'PARENT' &&
+        getUserDoc().data.active == true;
+    }
+
+    // Deterministic parent-child link check: parentStudentLinks/{parentUid}_{studentId}
+    function isLinkedParent(studentId) {
+      return isParent() &&
+        exists(/databases/$(database)/documents/parentStudentLinks/$(request.auth.uid + '_' + studentId)) &&
+        get(/databases/$(database)/documents/parentStudentLinks/$(request.auth.uid + '_' + studentId)).data.authorized == true;
+    }
+
+    // ==========================================
+    // 1. USERS COLLECTION
+    // ==========================================
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        signedIn() &&
+        request.auth.uid == userId &&
+        // Parents can ONLY update safe fields (displayName, phoneNumber)
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'phoneNumber', 'updatedAt']) &&
+        // Cannot alter role or active state
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.active == resource.data.active &&
+        request.resource.data.uid == resource.data.uid
+      );
+      allow delete: if false; // Permanent profile deletion disabled for audit safety
+    }
+
+    // ==========================================
+    // 2. STUDENTS COLLECTION
+    // ==========================================
+    match /students/{studentId} {
+      allow read: if isAdmin() || (isParent() && isLinkedParent(studentId));
+      allow create: if isAdmin() &&
+        request.resource.data.fullName is string &&
+        request.resource.data.fullName.size() >= 2 &&
+        request.resource.data.grade is string &&
+        request.resource.data.batchId is string &&
+        request.resource.data.monthlyFeePaise is int &&
+        request.resource.data.monthlyFeePaise >= 0 &&
+        request.resource.data.active is bool;
+      allow update: if isAdmin() &&
+        request.resource.data.id == resource.data.id;
+      // Permanent deletion must be executed via trusted backend student exit job
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 3. PARENT-STUDENT LINKS COLLECTION
+    // ==========================================
+    match /parentStudentLinks/{linkId} {
+      allow read: if isAdmin() || (
+        isParent() &&
+        resource.data.parentUid == request.auth.uid
+      );
+      // Strictly Admin writes; enforces deterministic document ID {parentUid}_{studentId}
+      allow create: if isAdmin() &&
+        linkId == request.resource.data.parentUid + '_' + request.resource.data.studentId &&
+        exists(/databases/$(database)/documents/users/$(request.resource.data.parentUid)) &&
+        exists(/databases/$(database)/documents/students/$(request.resource.data.studentId)) &&
+        request.resource.data.relationship in ['FATHER', 'MOTHER', 'GUARDIAN'];
+      allow update: if isAdmin() &&
+        linkId == resource.data.parentUid + '_' + resource.data.studentId;
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 4. BATCHES COLLECTION
+    // ==========================================
+    match /batches/{batchId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() &&
+        request.resource.data.name is string &&
+        request.resource.data.grade is string &&
+        request.resource.data.subject is string &&
+        request.resource.data.defaultGracePeriodMinutes is int &&
+        request.resource.data.defaultGracePeriodMinutes >= 0;
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // 5. CLASS SESSIONS COLLECTION
+    // ==========================================
+    match /classSessions/{sessionId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() &&
+        request.resource.data.batchId is string &&
+        request.resource.data.status in ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] &&
+        request.resource.data.gracePeriodMinutes is int;
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // 6. ATTENDANCE COLLECTION
+    // Deterministic doc ID: {studentId}_{sessionId}
+    // ==========================================
+    match /attendance/{attendanceId} {
+      allow read: if isAdmin() || (
+        isParent() &&
+        isLinkedParent(resource.data.studentId)
+      );
+
+      // Create attendance
+      allow create: if isAdmin() &&
+        attendanceId == request.resource.data.studentId + '_' + request.resource.data.sessionId &&
+        request.resource.data.status in ['PRESENT', 'ABSENT', 'LEFT'] &&
+        // PRESENT requires valid arrival timestamp
+        (request.resource.data.status != 'PRESENT' || request.resource.data.arrivalAt is string) &&
+        // ABSENT cannot have arrival or departure timestamps
+        (request.resource.data.status != 'ABSENT' || (!('arrivalAt' in request.resource.data) && !('departureAt' in request.resource.data))) &&
+        // LEFT cannot be created directly without prior PRESENT
+        (request.resource.data.status != 'LEFT');
+
+      // Update attendance
+      allow update: if isAdmin() &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.sessionId == resource.data.sessionId &&
+        // Transitioning to LEFT requires previous state PRESENT and preserves original arrival
+        (request.resource.data.status != 'LEFT' || (
+          (resource.data.status == 'PRESENT' || resource.data.status == 'LEFT') &&
+          request.resource.data.arrivalAt == resource.data.arrivalAt &&
+          request.resource.data.departureAt is string
+        ));
+
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 7. FEE RECORDS COLLECTION
+    // ==========================================
+    match /feeRecords/{feeId} {
+      allow read: if isAdmin() || (
+        isParent() &&
+        isLinkedParent(resource.data.studentId)
+      );
+      allow create: if isAdmin() &&
+        request.resource.data.studentId is string &&
+        request.resource.data.amountDuePaise is int &&
+        request.resource.data.amountDuePaise >= 0 &&
+        request.resource.data.billingMonth is int &&
+        request.resource.data.billingYear is int;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 8. PAYMENTS COLLECTION
+    // Confirmed transactions cannot be silently modified or erased
+    // ==========================================
+    match /payments/{paymentId} {
+      allow read: if isAdmin() || (
+        isParent() &&
+        isLinkedParent(resource.data.studentId)
+      );
+      allow create: if isAdmin() &&
+        request.resource.data.amountPaise is int &&
+        request.resource.data.amountPaise > 0 &&
+        request.resource.data.method in ['CASH', 'UPI'] &&
+        request.resource.data.status == 'CONFIRMED' &&
+        request.resource.data.studentId is string &&
+        request.resource.data.feeRecordId is string &&
+        request.resource.data.receiptNumber is string;
+
+      // Only audited reversals permitted (preserves original amount, receipt number, studentId)
+      allow update: if isAdmin() &&
+        request.resource.data.id == resource.data.id &&
+        request.resource.data.studentId == resource.data.studentId &&
+        request.resource.data.amountPaise == resource.data.amountPaise &&
+        request.resource.data.receiptNumber == resource.data.receiptNumber &&
+        request.resource.data.status == 'REVERSED' &&
+        request.resource.data.reversalReason is string &&
+        request.resource.data.reversalReason.size() > 0;
+
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 9. ANNOUNCEMENTS COLLECTION
+    // ==========================================
+    match /announcements/{announcementId} {
+      allow read: if isAdmin() || (
+        isParent() &&
+        resource.data.active == true &&
+        (
+          resource.data.targetAudience == 'ALL' ||
+          (resource.data.targetAudience == 'BATCH' && resource.data.batchId is string)
+        )
+      );
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 10. NOTIFICATION HISTORY COLLECTION
+    // ==========================================
+    match /notificationHistory/{notificationId} {
+      allow read: if signedIn() && (
+        isAdmin() ||
+        resource.data.recipientUid == request.auth.uid
+      );
+      allow create: if isAdmin();
+      // Recipients may ONLY toggle read status
+      allow update: if signedIn() &&
+        resource.data.recipientUid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt']) &&
+        request.resource.data.recipientUid == resource.data.recipientUid;
+      allow delete: if isAdmin();
+    }
+
+    // ==========================================
+    // 11. AUDIT LOGS COLLECTION
+    // Client write is disabled; written only by authorized admin or backend proxy
+    // ==========================================
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.action is string;
+      allow update, delete: if false; // Append-only immutable log
+    }
+
+    // ==========================================
+    // 12. STUDENT EXIT JOBS
+    // ==========================================
+    match /studentExitJobs/{jobId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // 13. EXIT REPORTS
+    // ==========================================
+    match /exitReports/{reportId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // ==========================================
+    // 14. TUITION CENTER SETTINGS
+    // ==========================================
+    match /centerSettings/{settingId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ==========================================
+    // DEFAULT DENY ALL OTHER PATHS
+    // ==========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

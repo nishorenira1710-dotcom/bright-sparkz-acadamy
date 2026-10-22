@@ -1,0 +1,1184 @@
+# MASTER TASK: CONVERT THE EXISTING TUITION CENTER APPLICATION INTO A REAL, FIREBASE-BACKED PRODUCTION SYSTEM
+
+You are acting as a senior full-stack engineer, Firebase architect, application security engineer, UI/UX implementation specialist, database designer, and software quality engineer.
+
+I am providing three assets:
+
+1. An existing Tuition Center Management System application ZIP.
+2. A UI/UX design ZIP containing the intended visual design and related assets.
+3. The official logo of my tuition center.
+
+Your task is to inspect the existing application and systematically transform it into a working, secure, maintainable, mobile-first application that can be manually configured with Firebase and prepared for production deployment.
+
+This is a CORRECTION AND IMPLEMENTATION TASK.
+
+Do not generate another demo application.
+
+Do not replace the existing application with a new generic dashboard.
+
+Do not merely change the colors, write a plan, or provide code snippets without integrating them into the actual project.
+
+Inspect the existing files, understand the current implementation, preserve useful working code, and correct the application in place.
+
+The final result must use real Firebase Authentication and Cloud Firestore, with no demo mode, no fake authentication, no simulated database, and no role switcher.
+
+If a requested feature cannot be completed within the available environment, implement the safe parts, explain the remaining dependency, and do not falsely claim that the feature is complete.
+
+==================================================
+PART 1: INSPECT ALL PROVIDED ASSETS FIRST
+=========================================
+
+Before changing any code, inspect the existing application ZIP.
+
+Identify:
+
+* The framework and build system.
+* The application entry point.
+* All routes and pages.
+* Existing layouts and navigation components.
+* Authentication implementation.
+* Firebase configuration and initialization.
+* Firestore services and data models.
+* Existing database queries and mutations.
+* Forms and validation.
+* Existing security rules.
+* Existing tests.
+* Existing demo or mock-data implementations.
+* Hard-coded credentials, insecure configuration, or misleading success states.
+* Broken, incomplete, duplicated, or unused components.
+* Existing dependency and build problems.
+
+Next, inspect the UI/UX design ZIP.
+
+Determine:
+
+* Intended page layouts.
+* Header and navigation design.
+* Sidebar or mobile navigation.
+* Color palette.
+* Typography.
+* Component shapes.
+* Spacing.
+* Shadows and glass effects.
+* Forms, tables, cards, dialogs, and dashboards.
+* Mobile layouts.
+* Icons, illustrations, and assets.
+* Logo placement and loading animations.
+
+Treat the provided UI/UX design as the primary design reference.
+
+Do not replace the design with your own generic admin dashboard.
+
+If the ZIP archives cannot be inspected directly in the environment, clearly identify that limitation. Do not pretend to have reviewed their contents. Request accessible files or use the available file-inspection capabilities before continuing.
+
+After inspection, make a short internal implementation plan, then begin modifying the actual project. Do not stop after presenting an audit report.
+
+==================================================
+PART 2: REMOVE ALL DEMO FUNCTIONALITY
+=====================================
+
+The existing application must become a real application, not a presentation prototype.
+
+Remove:
+
+* Demo mode.
+* Mock authentication.
+* Fake users.
+* Fake login success.
+* Simulated role switching.
+* Mock Firestore services.
+* Hard-coded student records presented as real data.
+* Fake payment transactions.
+* Fake attendance records.
+* Hard-coded dashboard metrics.
+* Simulated report generation presented as successful.
+* Simulated Firebase connection states.
+* Fake CRUD operations that only update local component state.
+* Local-storage-based application databases.
+* Mock API responses used by production workflows.
+* Placeholder success messages for operations that never reached Firebase.
+
+Do not retain a demo-mode toggle.
+
+Do not implement an automatic fallback to mock data when Firebase is unavailable.
+
+If Firebase is not configured, show a clear setup-required screen explaining what needs to be configured.
+
+If Firebase is unavailable, show a real connection or service error.
+
+If an operation fails, display an error and preserve the user's ability to retry.
+
+Never show a successful result unless the corresponding operation has actually succeeded.
+
+Do not create artificial sample data when the application starts.
+
+If the database is empty, show a proper empty state with an appropriate action, such as "Add your first student."
+
+The application must be designed around real authenticated users and real database records.
+
+==================================================
+PART 3: REMOVE THE ROLE SWITCHER COMPLETELY
+===========================================
+
+There must be NO ROLE SWITCHER anywhere in the application.
+
+Remove:
+
+* Header role dropdowns.
+* Admin/Parent toggle buttons.
+* Demo account selectors.
+* Role-switching menus.
+* Query parameters that grant roles.
+* Local-storage role selection.
+* Frontend role overrides.
+* UI controls that simulate administrator privileges.
+
+The application has exactly two roles:
+
+1. ADMIN
+2. PARENT
+
+The administrator is also the tuition teacher. Do not create a separate teacher role.
+
+The authenticated user's role must come from a trusted authorization source.
+
+Use Firebase Authentication to establish identity and a protected user profile or appropriately secured custom claims to establish authorization.
+
+The frontend may read the role to decide which interface to display, but the frontend must never be the authority that grants permissions.
+
+After login:
+
+* An authenticated admin is directed to the admin dashboard.
+* An authenticated parent is directed to the parent dashboard.
+* An unauthenticated user is directed to login.
+* An inactive account is denied application access.
+* A user with a missing or invalid role receives a safe account-setup or access-denied screen.
+
+Do not automatically promote the first registered account to admin.
+
+Do not allow users to choose ADMIN during public signup.
+
+Do not expose administrator registration publicly.
+
+Implement a secure, documented process for provisioning the first administrator manually.
+
+Do not allow a parent to change their own role through Firestore or frontend requests.
+
+==================================================
+PART 4: LIQUID-GLASS DESIGN IMPLEMENTATION
+==========================================
+
+The current interface does not sufficiently implement liquid glass. Correct it using the actual visual reference from the supplied UI/UX design ZIP.
+
+Do not interpret liquid glass as simply adding a white background and a slight shadow.
+
+Implement a visibly layered, translucent glass interface.
+
+Use the following visual principles:
+
+1. TRANSLUCENCY
+
+   * Use translucent surfaces rather than opaque white backgrounds for glass components.
+   * Allow the content behind the surface to remain subtly visible.
+   * Use controlled transparency so text remains readable.
+
+2. BACKDROP BLUR
+
+   * Use backdrop-filter with a meaningful blur value.
+   * Use backdrop saturation where supported.
+   * Ensure the blur is visually apparent over a contrasting background.
+
+3. EDGE REFLECTION
+
+   * Add a fine, semi-transparent border.
+   * Add subtle top-edge highlights.
+   * Use restrained inner highlights to simulate reflected light.
+
+4. DEPTH
+
+   * Use layered shadows rather than a single generic shadow.
+   * Use controlled background gradients where appropriate.
+   * Use overlapping translucent layers only when they improve visual quality.
+
+5. FLOATING NAVIGATION
+
+   * Design the header as a floating glass surface.
+   * Use appropriate margins, rounded corners, and separation from the page background.
+   * Avoid a plain, full-width, opaque header.
+   * Preserve the navigation structure shown in the supplied design.
+
+6. MOBILE NAVIGATION
+
+   * Apply the same visual language to the mobile navigation.
+   * Ensure the bottom navigation does not cover content.
+   * Respect mobile safe areas.
+   * Keep controls large enough for touch interaction.
+
+7. VISUAL CONSISTENCY
+
+   * Apply the glass design consistently to appropriate navigation surfaces, popovers, dialogs, and selected panels.
+   * Do not turn every card into a transparent glass card if the design reference does not call for it.
+   * Keep data tables and financial information easy to read.
+
+8. ACCESSIBILITY
+
+   * Maintain sufficient contrast.
+   * Support reduced motion.
+   * Provide a usable fallback for browsers without backdrop-filter support.
+   * Do not depend on transparency alone to communicate state.
+
+COLOR PALETTE:
+
+Primary orange: #F97316
+Dark orange: #EA580C
+Primary blue: #2563EB
+Dark blue: #1D4ED8
+Light blue: #EFF6FF
+White: #FFFFFF
+Background: #F8FAFC
+Primary text: #0F172A
+Secondary text: #64748B
+Borders: #E2E8F0
+
+Use orange for primary actions and important highlights.
+
+Use blue for navigation, information, and secondary emphasis.
+
+Use white and subtle neutral colors for readable content surfaces.
+
+Use the exact color and spacing choices from the supplied UI/UX design where they differ from these defaults, provided they remain accessible.
+
+Do not create a generic dashboard unrelated to the supplied design.
+
+==================================================
+PART 5: USE MY TUITION CENTER LOGO
+==================================
+
+Use the supplied logo as the actual application brand.
+
+Do not substitute an unrelated icon.
+
+Do not redraw or replace the logo with a generated approximation.
+
+Use the original asset while preserving its aspect ratio.
+
+Integrate it into:
+
+* Login screen.
+* Application branding.
+* Header or sidebar according to the design.
+* Loading animation.
+* Printable receipts.
+* Printable reports where appropriate.
+
+Create a branded loading animation using the actual logo.
+
+Use a subtle pulse, scale animation, reflective ring, or other restrained motion that matches the design.
+
+Do not create an excessively long loading animation.
+
+Use the logo only after the asset has been included in the project.
+
+If the asset cannot be accessed, report that clearly instead of silently using a placeholder as the official logo.
+
+An administrator may replace the logo later through settings if that feature is implemented.
+
+If logo upload is supported, validate the file type and size and save it to the configured storage system. Do not claim the logo is stored remotely when it is only a local preview.
+
+==================================================
+PART 6: MANUAL FIREBASE CONFIGURATION
+=====================================
+
+I will configure Firebase manually.
+
+Do not assume that a Firebase project already exists.
+
+Do not silently create or connect to an unrelated Firebase project.
+
+Do not enable billing.
+
+Do not silently enable paid services.
+
+Prepare the application for manual Firebase configuration.
+
+Use the Firebase modular Web SDK.
+
+Create a clear Firebase initialization module.
+
+Use environment variables or the appropriate framework-supported configuration mechanism.
+
+Provide a safe example configuration file such as:
+
+.env.example
+
+Include the required public Firebase web configuration fields:
+
+* API key.
+* Auth domain.
+* Project ID.
+* Storage bucket, only if applicable.
+* Messaging sender ID, if required.
+* App ID.
+
+Explain which values come from Firebase Console.
+
+Do not place service-account credentials, private keys, or privileged server secrets in frontend environment variables.
+
+Do not treat the Firebase web API key as the authorization boundary. Use Firebase Authentication and Security Rules for access control.
+
+Create the appropriate configuration files for the existing build system.
+
+Add a startup validation step.
+
+If required Firebase configuration is missing:
+
+* Show a clear configuration error.
+* Do not switch to demo mode.
+* Do not invent configuration values.
+* Do not attempt writes to a fake database.
+
+If the Firebase connection is configured:
+
+* Initialize the real Firebase SDK.
+* Connect the real authentication service.
+* Connect the real Firestore service.
+* Display a useful error if initialization or a request fails.
+
+Do not claim that the application is connected to Firebase until a real connection has been configured and tested.
+
+==================================================
+PART 7: FIREBASE AUTHENTICATION
+===============================
+
+Implement real Firebase Authentication.
+
+Required:
+
+* Login.
+* Logout.
+* Password reset.
+* Persistent authentication state.
+* Authentication-loading screen.
+* Protected application routes.
+* Role-aware routing.
+* Account-status verification.
+* Clear invalid-credentials errors.
+* Safe session expiration handling.
+* Appropriate access-denied screens.
+
+Do not implement fake credentials.
+
+Do not store passwords in Firestore or localStorage.
+
+Do not use hard-coded administrator credentials.
+
+Do not allow public admin signup.
+
+Implement a secure initial-admin provisioning procedure in the README.
+
+The manual procedure must explain:
+
+1. How to create the Firebase project.
+2. How to enable the selected authentication provider.
+3. How to create the initial administrator account securely.
+4. How to establish the administrator's role through a trusted method.
+5. How to verify the account and role.
+6. How to prevent public users from promoting themselves.
+
+If role assignment requires the Firebase Admin SDK, use an appropriate trusted environment or clearly document the required manual provisioning procedure.
+
+Never place Admin SDK credentials in the frontend.
+
+==================================================
+PART 8: FIRESTORE DATA MODEL
+============================
+
+Use the following primary collections:
+
+users
+students
+parentStudentLinks
+batches
+classSessions
+attendance
+feeRecords
+payments
+announcements
+notificationHistory
+auditLogs
+studentExitJobs
+exitReports
+
+Additional collections are allowed when justified.
+
+Use consistent TypeScript types and runtime validation.
+
+Document required fields, optional fields, data relationships, and authorization requirements.
+
+USERS:
+
+* displayName
+* email
+* role
+* active
+* createdAt
+* updatedAt
+
+STUDENTS:
+
+* fullName
+* grade
+* schoolName, when applicable
+* batchId
+* enrollmentDate
+* monthlyFeePaise
+* active
+* createdAt
+* updatedAt
+
+PARENT-STUDENT LINKS:
+
+parentStudentLinks/{parentUid}_{studentId}
+
+Fields:
+
+* parentUid
+* studentId
+* relationship
+* authorized
+* createdAt
+* createdBy
+
+Use the deterministic relationship ID to simplify exact relationship verification.
+
+ATTENDANCE:
+
+attendance/{studentId}_{sessionId}
+
+Fields:
+
+* studentId
+* batchId
+* sessionId
+* status
+* arrivalAt
+* departureAt
+* arrivalClassification
+* createdAt
+* updatedAt
+* recordedBy
+* lastModifiedBy
+
+FEE RECORDS:
+
+* studentId
+* billingMonth
+* billingYear
+* amountDuePaise
+* dueDate
+* description
+* createdAt
+* updatedAt
+
+PAYMENTS:
+
+* studentId
+* feeRecordId
+* amountPaise
+* method
+* paymentDate
+* receiptNumber
+* recordedBy
+* reference
+* notes
+* status
+* createdAt
+
+ANNOUNCEMENTS:
+
+* title
+* message
+* targetBatchIds
+* publishedAt
+* createdBy
+* active
+
+NOTIFICATIONS:
+
+* recipientUid
+* title
+* message
+* type
+* relatedRecordId
+* createdAt
+* readAt
+
+AUDIT LOGS:
+
+* actorUid
+* action
+* entityType
+* entityId
+* timestamp
+* reason
+* minimal relevant change metadata
+
+EXIT JOBS AND REPORTS:
+Use the documented deletion-job workflow described later in this prompt.
+
+Use integer paise for currency.
+
+For example:
+₹1,500 = 150000 paise.
+
+Use server timestamps where appropriate.
+
+Do not rely on client-provided fields as proof of authorization.
+
+Do not automatically delete attendance after 60 days.
+
+==================================================
+PART 9: REQUIRED ADMIN APPLICATION
+==================================
+
+Create working, authenticated admin pages for:
+
+* Dashboard.
+* Student directory.
+* Add student.
+* Student details.
+* Edit student.
+* Parent accounts.
+* Parent-child relationship management.
+* Batch management.
+* Class-session management.
+* Attendance.
+* Fee records.
+* Payment entry.
+* Payment history.
+* Receipts.
+* Announcements.
+* Notifications.
+* Reports.
+* Student exit.
+* Audit logs.
+* Tuition center settings.
+
+Every page must use the actual service layer.
+
+Do not create buttons that only display success messages.
+
+Do not use hard-coded metrics.
+
+Do not display fabricated student or payment records.
+
+When the database is empty, show an empty state.
+
+When a query fails, show an error and retry option.
+
+When a write succeeds, update the interface using the confirmed result.
+
+Implement pagination and efficient queries.
+
+==================================================
+PART 10: REQUIRED PARENT APPLICATION
+====================================
+
+Create working, authenticated parent pages for:
+
+* Dashboard.
+* Linked children.
+* Child details.
+* Attendance history.
+* Fee records.
+* Payment history.
+* Receipts.
+* Announcements.
+* Notifications.
+* Profile.
+
+Parents must see only children explicitly linked to their authenticated UID.
+
+If a parent has multiple children, allow switching between them.
+
+This child selector is permitted because it selects among authorized children. It must never act as a role switcher.
+
+Parents must not be able to:
+
+* View arbitrary students.
+* Read another parent's children.
+* Modify attendance.
+* Create or modify fees.
+* Record or change payments.
+* Modify parent-child links.
+* Publish announcements.
+* Access admin reports.
+* Initiate student deletion.
+* Access admin-only settings or audit logs.
+
+Enforce these restrictions in Firebase Security Rules and trusted backend authorization.
+
+Do not depend on hiding UI controls.
+
+==================================================
+PART 11: ATTENDANCE IMPLEMENTATION
+==================================
+
+Supported states:
+
+NOT_MARKED
+PRESENT
+ABSENT
+LEFT
+
+NOT_MARKED is a display state when no attendance document exists.
+
+Do not automatically mark unmarked students absent.
+
+Only the admin can record attendance.
+
+A PRESENT record must include a valid arrival timestamp.
+
+An ABSENT record must not include arrival or departure timestamps.
+
+LEFT is permitted only after PRESENT.
+
+A LEFT transition must preserve the original arrival timestamp and record a valid departure timestamp.
+
+Departure must not be earlier than arrival.
+
+Calculate ON_TIME or LATE using the class session's scheduled start time and grace-period snapshot.
+
+Use a documented, consistent comparison boundary.
+
+Do not allow parents to modify attendance.
+
+Do not silently overwrite attendance.
+
+Use an audited correction workflow.
+
+Provide attendance history and percentage reports.
+
+Exclude NOT_MARKED sessions from the attendance percentage denominator.
+
+Preserve historical attendance.
+
+Do not implement automatic 60-day deletion.
+
+==================================================
+PART 12: FEES, PAYMENTS, AND RECEIPTS
+=====================================
+
+Support:
+
+* Monthly fee records.
+* Partial payments.
+* Multiple payments against one fee record.
+* Cash payments.
+* UPI payments.
+* Payment history.
+* Receipt numbers.
+* Printable receipts.
+* Outstanding balances.
+* Monthly collection reports.
+* Student financial summaries.
+
+Do not implement an online payment gateway.
+
+Use integer paise for monetary calculations.
+
+Calculate outstanding balances from fee obligations and applicable confirmed payments.
+
+Do not silently overwrite a confirmed payment.
+
+Do not permit parents to create, change, reverse, or delete payments.
+
+Create a controlled, auditable workflow for payment corrections and reversals.
+
+Generate receipts only from persisted, confirmed payment records.
+
+Do not show a successful payment result until the transaction has been confirmed and persisted.
+
+Do not treat opening the receipt page as proof that a payment exists.
+
+Implement sensitive financial operations through a trusted environment where required.
+
+Document any billing dependencies before configuring backend services.
+
+==================================================
+PART 13: FIRESTORE SECURITY RULES
+=================================
+
+Create a complete firestore.rules file for the application.
+
+Use:
+
+rules_version = '2';
+
+Default-deny every path that is not explicitly authorized.
+
+Never use permissive rules such as:
+
+allow read, write: if true;
+
+Implement helper functions for:
+
+* Authentication checks.
+* Admin role checks.
+* Parent role checks.
+* Active-account checks.
+* Exact parent-child relationship checks.
+* Required-field validation.
+* Allowed-field validation.
+* Type validation.
+* Immutable-field protection.
+* Valid attendance transitions.
+* Safe updates.
+
+USERS:
+
+* Users may access their own permitted profile.
+* Admins may access authorized user records.
+* Ordinary users cannot assign or change roles.
+* Parents cannot change their active status.
+* Parents cannot modify their UID.
+* Protect immutable fields.
+
+STUDENTS:
+
+* Admins can create and update validated student records.
+* Parents can read only individually authorized linked students.
+* Parents cannot list all students.
+* Parents cannot modify student records.
+* Direct client-side deletion is denied.
+
+PARENT-STUDENT LINKS:
+
+* Only admins may manage links.
+* Parents can read only their own links.
+* Prevent self-linking.
+* Validate deterministic document IDs.
+* Validate referenced parent and student records where appropriate.
+
+BATCHES AND SESSIONS:
+
+* Permit authorized reads of necessary schedule information.
+* Restrict writes to admins.
+* Validate required fields, timestamps, and relationships.
+
+ATTENDANCE:
+
+* Admins can read and create valid attendance.
+* Parents can read only linked children's records.
+* Parents cannot write or delete attendance.
+* Validate deterministic IDs.
+* Validate student, batch, and session relationships.
+* Validate allowed states and timestamp requirements.
+* Enforce valid PRESENT-to-LEFT transitions.
+* Preserve arrival timestamps.
+* Reject invalid or unauthorized updates.
+
+FEE RECORDS:
+
+* Admins can create validated fee records.
+* Parents can read only their linked children's fee records.
+* Parents cannot create, modify, or delete fee records.
+* Direct deletion is denied.
+
+PAYMENTS:
+
+* Admins may perform only authorized, validated payment operations.
+* Parents can read only their linked children's payment records.
+* Parents cannot create or modify payments.
+* Parents cannot reverse payments.
+* Direct payment updates and deletion are denied.
+* Validate positive integer amounts.
+* Validate CASH or UPI methods.
+* Verify that the referenced fee belongs to the same student.
+* Protect confirmed transactions.
+
+ANNOUNCEMENTS:
+
+* Only admins can publish and manage announcements.
+* Parents can read only active announcements intended for them.
+* Batch-targeted announcements must be protected from unauthorized parents.
+
+NOTIFICATIONS:
+
+* Parents can read only their own notifications.
+* Parents can update only the permitted read-state fields.
+* Parents cannot change notification content or recipient.
+
+AUDIT LOGS:
+
+* Admins can read authorized logs.
+* Sensitive log creation and modification must use a trusted process.
+
+EXIT JOBS AND REPORTS:
+
+* Parents cannot access admin exit workflows.
+* Clients cannot forge completed deletion jobs.
+* Sensitive report creation and deletion progress must be controlled by a trusted process.
+* Private reports must not be publicly accessible.
+
+Do not rely on the frontend for authorization.
+
+Do not claim that generating the rules proves they are correct.
+
+Review every rule against the actual schema and service methods.
+
+==================================================
+PART 14: REAL SECURITY TESTS
+============================
+
+Create automated Firestore Security Rules tests using the Firebase Emulator Suite and @firebase/rules-unit-testing.
+
+Do not use a fake test runner.
+
+Do not create a test file that reports success without executing assertions.
+
+Test both permitted and forbidden operations.
+
+At minimum, test:
+
+* Unauthenticated reads and writes are denied.
+* Admin-only operations reject parents.
+* Parents cannot change their roles.
+* Parents cannot access another parent's children.
+* Parents cannot read arbitrary students.
+* Parents cannot create attendance.
+* Invalid attendance transitions are rejected.
+* Parents cannot create or change fees.
+* Parents cannot create or alter payments.
+* Payments referencing another student's fee record are rejected.
+* Unauthorized announcements are denied.
+* Parents cannot read other users' notifications.
+* Clients cannot forge completed deletion jobs.
+* Parents cannot access private exit reports.
+
+Add tests for every collection and sensitive mutation.
+
+Provide exact commands for running the tests.
+
+Do not claim the tests passed unless you actually execute them and observe the results.
+
+Use emulator test data only.
+
+==================================================
+PART 15: STUDENT EXIT AND PERMANENT DELETION
+============================================
+
+Implement a secure student exit workflow.
+
+The admin must be able to:
+
+1. Select a student.
+2. Review the student's final financial and attendance summary.
+3. Generate an exit report.
+4. Store the report in a separately secured location.
+5. Verify that the report can be retrieved.
+6. Review the report.
+7. Explicitly confirm permanent deletion.
+8. Execute the deletion through a trusted workflow.
+9. Track deletion progress.
+10. Verify completion.
+11. Recover safely from partial failure.
+
+The report should include:
+
+* Relevant student details.
+* Enrollment and exit dates.
+* Attendance summary.
+* Attendance percentage.
+* Total fees due.
+* Total confirmed payments.
+* Outstanding balance or credit.
+* Relevant payment history.
+* Generation timestamp.
+* Authorized administrator.
+
+Attendance percentage must exclude NOT_MARKED sessions from the denominator.
+
+The report must not be accessible through an unrestricted public URL.
+
+Do not implement a client-side deletion loop as the only security mechanism.
+
+Do not assume that deleting a parent Firestore document deletes all related documents.
+
+Do not assume that a multi-document deletion is atomic.
+
+Use a trusted backend with appropriate authorization, least-privilege access, idempotent operations, and resumable progress tracking.
+
+Track the deletion job with explicit states, such as:
+
+REQUESTED
+REPORT_GENERATING
+REPORT_STORED
+REPORT_VERIFIED
+AWAITING_CONFIRMATION
+DELETING
+COMPLETED
+FAILED
+
+Do not automatically delete students after 60 days.
+
+Do not claim deletion succeeded while targeted records remain.
+
+Before deleting payment and financial records, account for applicable recordkeeping requirements. Retain any legally required information in a protected form.
+
+Do not silently enable billing-dependent services.
+
+If the trusted backend or storage service is not configured, keep permanent deletion disabled and explain the exact setup required.
+
+==================================================
+PART 16: LOGO STORAGE AND REPORT STORAGE
+========================================
+
+Use the supplied logo asset in the frontend.
+
+If administrators can replace the logo, store it in the configured storage system.
+
+If Firebase Storage is used:
+
+* Create storage.rules.
+* Restrict uploads to authorized administrators.
+* Validate content types and file sizes.
+* Protect private files.
+* Avoid public report URLs.
+* Avoid unrestricted upload paths.
+
+For student exit reports:
+
+* Use a trusted report-generation and storage process.
+* Keep report access restricted.
+* Verify storage success before deletion.
+* Store only necessary report metadata in Firestore.
+* Do not put report contents in audit logs.
+
+Explain which storage services require additional configuration or billing.
+
+Do not enable a paid service without my explicit decision.
+
+==================================================
+PART 17: FIREBASE SPARK AND COST CONTROL
+========================================
+
+The application should initially target the Firebase Spark plan.
+
+Do not silently upgrade the project.
+
+Do not silently enable billing.
+
+Do not silently introduce paid backend infrastructure.
+
+Optimize database usage by:
+
+* Using pagination.
+* Fetching only required documents.
+* Avoiding unnecessary listeners.
+* Unsubscribing from listeners when components unmount.
+* Avoiding unnecessary repeated queries.
+* Using appropriate indexes.
+* Avoiding full-database reads for dashboards.
+* Avoiding automatic deletion jobs.
+* Avoiding high-frequency polling.
+
+Do not promise that all functionality will be free.
+
+If a feature requires a billing-enabled project, explain:
+
+1. Why it is needed.
+2. Whether an alternative exists.
+3. Which manual setup is required.
+4. What costs or limits must be reviewed.
+
+If a secure feature cannot be implemented under the current configuration, do not weaken security to make it appear functional.
+
+Keep the feature safely disabled until the required infrastructure is configured.
+
+==================================================
+PART 18: REQUIRED MANUAL CONFIGURATION DOCUMENTATION
+====================================================
+
+Create a detailed README.md that explains how I will configure the project manually.
+
+Include:
+
+A. LOCAL DEVELOPMENT
+
+* Install Node.js if required.
+* Install dependencies.
+* Run the application.
+* Build the application.
+* Run linting.
+* Run tests.
+
+B. FIREBASE PROJECT
+
+* Create a dedicated Firebase project.
+* Register the web application.
+* Obtain the correct Firebase web configuration.
+* Configure environment variables.
+* Select the database region carefully.
+* Enable the intended Authentication provider.
+* Create Firestore.
+* Configure required indexes.
+
+C. ADMIN PROVISIONING
+
+* Create the first administrator securely.
+* Assign the administrator role using a trusted procedure.
+* Verify that public signup cannot create admins.
+* Verify that parents cannot change their role.
+
+D. SECURITY
+
+* Review Firestore rules.
+* Run emulator tests.
+* Review Storage rules if applicable.
+* Deploy only verified rules.
+* Explain the difference between client-side UI restrictions and database authorization.
+
+E. DEPLOYMENT
+
+* Build the application.
+* Configure the intended hosting provider.
+* Deploy the application.
+* Verify authentication redirects.
+* Verify Firebase connectivity.
+* Verify authorization after deployment.
+
+F. BACKEND DEPENDENCIES
+
+* Explain any required trusted backend.
+* Explain which operations need privileged execution.
+* Explain any billing dependencies.
+* Provide the steps required to configure those services manually.
+
+G. VERIFICATION
+
+* Provide a production-readiness checklist.
+* List tests actually run.
+* List known limitations.
+* List features not yet implemented.
+* List configuration still required.
+
+Do not include real secrets in README.md.
+
+Create .env.example with placeholder values only.
+
+==================================================
+PART 19: IMPLEMENTATION AND QUALITY REQUIREMENTS
+================================================
+
+Do not stop after generating the design.
+
+Do not stop after generating a dashboard.
+
+Do not stop after creating Firebase configuration files.
+
+Implement the actual application workflows.
+
+Preserve the existing framework where practical. Do not rewrite the entire application without a technical reason.
+
+Reuse useful components from the supplied UI/UX design.
+
+Use TypeScript consistently.
+
+Resolve imports, routes, form validation, and service integration.
+
+Remove dead buttons and misleading controls.
+
+Every implemented button must have a real, meaningful action.
+
+Every data table must display actual data from the configured backend.
+
+Every mutation must persist successfully before the UI reports success.
+
+Every protected route must use the authenticated user's actual permissions.
+
+Every important operation must handle loading, error, success, and empty states.
+
+Do not suppress errors to make the application look finished.
+
+Do not disable security checks merely to get the UI working.
+
+Do not silently substitute sample data.
+
+Do not expose private information in logs or error messages.
+
+Do not claim the application is production-ready without verifying the implementation.
+
+==================================================
+PART 20: EXECUTION ORDER
+========================
+
+Execute the task in this order.
+
+PHASE 1 — INSPECTION
+Inspect both ZIP files and the logo.
+
+Identify the current architecture, visual design, defects, and missing functionality.
+
+PHASE 2 — VISUAL CORRECTION
+Implement the supplied UI/UX design.
+
+Implement the visible liquid-glass effect.
+
+Integrate the supplied logo.
+
+Remove the role switcher.
+
+PHASE 3 — DEMO REMOVAL
+Remove mock authentication, mock databases, simulated mutations, and fake success messages.
+
+Remove the demo-mode switch entirely.
+
+PHASE 4 — FIREBASE FOUNDATION
+Implement real Firebase configuration, Authentication, Firestore services, validation, and role-aware route protection.
+
+PHASE 5 — ADMIN WORKFLOWS
+Implement student, parent-link, batch, session, attendance, fee, payment, receipt, announcement, notification, and report workflows.
+
+PHASE 6 — PARENT WORKFLOWS
+Implement the parent dashboard and authorized child-specific information.
+
+PHASE 7 — SECURITY
+Complete and review Firestore rules, storage rules where applicable, and emulator-backed security tests.
+
+PHASE 8 — PRIVILEGED OPERATIONS
+Implement or clearly isolate the trusted backend operations for payments, audit logs, report storage, and permanent deletion.
+
+PHASE 9 — VERIFICATION
+Run the available checks:
+
+* TypeScript checks.
+* Lint.
+* Production build.
+* Security-rule tests.
+* Route checks.
+* Mobile responsiveness checks.
+* Authentication and authorization tests.
+
+Fix the problems discovered.
+
+PHASE 10 — HANDOVER
+Provide:
+
+* The modified project files.
+* The final directory structure.
+* The setup README.
+* The Firestore rules.
+* Storage rules if applicable.
+* Security tests.
+* Exact commands to run.
+* Manual Firebase configuration steps.
+* Test results that were actually observed.
+* Remaining limitations.
+* Features that are not safe to enable yet.
+
+Begin with Phase 1, then continue systematically through the remaining phases.
+
+Do not return only a plan. Make the changes directly to the existing project.
+
+If an environment limitation prevents completion, state it explicitly and never substitute a demo implementation for a production feature.
