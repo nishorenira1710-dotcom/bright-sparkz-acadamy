@@ -1,0 +1,6 @@
+{
+  "name": "Tuition Center Management System",
+  "description": "Mobile-first Tuition Center Management System with role-aware admin and parent portals, attendance, fee tracking, receipt generation, batch scheduling, and student exit audit.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
